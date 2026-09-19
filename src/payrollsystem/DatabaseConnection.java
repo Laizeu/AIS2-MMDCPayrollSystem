@@ -14,8 +14,8 @@ public class DatabaseConnection {
     
     // Database URL, username, and password
     private static final String DB_URL = "jdbc:mysql://localhost:3306/payroll_system_db";        //Initializing Database URL
-    private static final String DB_USER = "root";                                                //Initializing Database user
-    private static final String DB_PASSWORD = "Johnpaul090950";                                  //Initializing Database Password
+    private static final String DB_USER = "root";                                              //Initializing Database user
+    private static final String DB_PASSWORD = "thisisg0spel";                                  //Initializing Database Password
     Connection connection = null;
     
     //Method for Creating Database Connection
@@ -24,6 +24,7 @@ public class DatabaseConnection {
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);                    //Getting Database Connection
         } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Database Connection Failed!", "Error", JOptionPane.ERROR_MESSAGE);  //Message Dialog for Database Connection Failed
         }
     }

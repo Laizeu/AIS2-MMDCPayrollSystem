@@ -4,3 +4,4 @@
 *.csv
 nbproject/project.properties
 /dist/
+/lib/jasper/JavaApplication2/nbproject/private/
