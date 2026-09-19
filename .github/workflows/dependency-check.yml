@@ -17,7 +17,7 @@ jobs:
           project: 'MotorPH Payroll System'
           path: '.'
           format: 'HTML'
-          args: >--
+          args: >
             --disableCentral
             --nvdApiKey ${{ secrets.NVD_API_KEY }}
         env:
