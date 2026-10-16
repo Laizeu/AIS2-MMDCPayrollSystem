@@ -161,7 +161,7 @@ CREATE TABLE `credentials` (
   PRIMARY KEY (`credential_id`),
   KEY `employee_id` (`employee_id`),
   CONSTRAINT `credentials_ibfk_1` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`employee_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -684,6 +684,225 @@ INSERT INTO `request_status` VALUES (1,'Pending'),(2,'Approved'),(3,'Disapproved
 UNLOCK TABLES;
 
 --
+-- Dumping routines for database 'payroll_system_db'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `generate_payslip_report` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `generate_payslip_report`(
+    IN empID INT,
+    IN startDate DATE,
+    IN endDate DATE
+)
+BEGIN
+    WITH employee_payroll_cte AS (
+        SELECT
+            ep.employee_id,
+            CONCAT(e.first_name, ' ', e.last_name) AS `Full Name`,
+            p.position_name AS `Position`,
+            ep.period_id
+        FROM employee_payroll ep
+        JOIN employees e ON ep.employee_id = e.employee_id
+        JOIN positions p ON e.position_id = p.position_id
+        WHERE ep.employee_id = empID
+    )
+    SELECT
+        CONCAT(
+            DATE_FORMAT(NOW(), '%d-%Y-%m'), '-', LPAD(FLOOR(RAND() * 10000), 4, '0')
+        ) AS `Payslip Number`,
+        epc.employee_id AS `Employee ID`,
+        epc.`Full Name`,
+        epc.`Position`,
+        startDate AS `Period From`,
+        endDate AS `Period To`,
+        cd.basic_salary AS `Monthly Salary`,
+        ROUND(cd.hourly_rate * 8, 2) AS `Daily Rate`,
+
+        -- Days Worked
+        (SELECT COUNT(DISTINCT ar.attendance_date)
+         FROM attendance_records ar
+         WHERE ar.employee_id = empID
+           AND ar.attendance_date BETWEEN startDate AND endDate) AS `Days Worked`,
+
+        -- Total Overtime
+        ROUND((
+            SELECT SUM(GREATEST(TIMESTAMPDIFF(MINUTE, ar.login, ar.logout) - 480, 0)) / 60
+            FROM attendance_records ar
+            WHERE ar.employee_id = empID
+              AND ar.attendance_date BETWEEN startDate AND endDate
+        ), 2) AS `Total Overtime`,
+
+        -- Gross Income
+        ROUND((
+            (cd.hourly_rate * 8) *
+            (SELECT COUNT(DISTINCT ar.attendance_date)
+             FROM attendance_records ar
+             WHERE ar.employee_id = empID
+               AND ar.attendance_date BETWEEN startDate AND endDate)
+            +
+            (
+             SELECT COALESCE(SUM(GREATEST(TIMESTAMPDIFF(MINUTE, ar.login, ar.logout) - 480, 0)) / 60, 0)
+             FROM attendance_records ar
+             WHERE ar.employee_id = empID
+               AND ar.attendance_date BETWEEN startDate AND endDate
+            ) * cd.hourly_rate
+            +
+            cd.rice_subsidy + cd.phone_allowance + cd.clothing_allowance
+        ), 2) AS `Gross Income`,
+
+        -- Allowances
+        cd.rice_subsidy AS `Rice Subsidy`,
+        cd.phone_allowance AS `Phone Allowance`,
+        cd.clothing_allowance AS `Clothing Allowance`,
+        ROUND(cd.rice_subsidy + cd.phone_allowance + cd.clothing_allowance, 2) AS `Total Allowances`,
+
+        -- Government Deductions
+        pd.sss_deduction AS `SSS`,
+        pd.pagibig_deduction AS `Pag-IBIG`,
+        pd.philhealth_deduction AS `PhilHealth`,
+
+        -- Withholding Tax (computed)
+        (
+            SELECT
+                ROUND(
+                    CASE
+                        WHEN taxable_income <= 20832 THEN 0
+                        WHEN taxable_income <= 33332 THEN (taxable_income - 20833) * 0.20
+                        WHEN taxable_income <= 66666 THEN 2500 + (taxable_income - 33333) * 0.25
+                        WHEN taxable_income <= 166666 THEN 10833.33 + (taxable_income - 66667) * 0.30
+                        WHEN taxable_income <= 666666 THEN 40833.33 + (taxable_income - 166667) * 0.32
+                        ELSE 200833.33 + (taxable_income - 666667) * 0.35
+                    END, 2
+                )
+            FROM (
+                SELECT
+                    ROUND((
+                        (cd.hourly_rate * 8) *
+                        (SELECT COUNT(DISTINCT ar.attendance_date)
+                         FROM attendance_records ar
+                         WHERE ar.employee_id = empID
+                           AND ar.attendance_date BETWEEN startDate AND endDate)
+                        +
+                        (
+                         SELECT COALESCE(SUM(GREATEST(TIMESTAMPDIFF(MINUTE, ar.login, ar.logout) - 480, 0)) / 60, 0)
+                         FROM attendance_records ar
+                         WHERE ar.employee_id = empID
+                           AND ar.attendance_date BETWEEN startDate AND endDate
+                        ) * cd.hourly_rate
+                        +
+                        cd.rice_subsidy + cd.phone_allowance + cd.clothing_allowance
+                        -
+                        (pd.sss_deduction + pd.philhealth_deduction + pd.pagibig_deduction)
+                    ), 2) AS taxable_income
+            ) AS temp
+        ) AS `Withholding Tax`,
+
+        -- Take-Home Pay
+        (
+            SELECT
+                ROUND(
+                    taxable_income - (
+                        CASE
+                            WHEN taxable_income <= 20832 THEN 0
+                            WHEN taxable_income <= 33332 THEN (taxable_income - 20833) * 0.20
+                            WHEN taxable_income <= 66666 THEN 2500 + (taxable_income - 33333) * 0.25
+                            WHEN taxable_income <= 166666 THEN 10833.33 + (taxable_income - 66667) * 0.30
+                            WHEN taxable_income <= 666666 THEN 40833.33 + (taxable_income - 166667) * 0.32
+                            ELSE 200833.33 + (taxable_income - 666667) * 0.35
+                        END
+                    ), 2
+                )
+            FROM (
+                SELECT
+                    ROUND((
+                        (cd.hourly_rate * 8) *
+                        (SELECT COUNT(DISTINCT ar.attendance_date)
+                         FROM attendance_records ar
+                         WHERE ar.employee_id = empID
+                           AND ar.attendance_date BETWEEN startDate AND endDate)
+                        +
+                        (
+                         SELECT COALESCE(SUM(GREATEST(TIMESTAMPDIFF(MINUTE, ar.login, ar.logout) - 480, 0)) / 60, 0)
+                         FROM attendance_records ar
+                         WHERE ar.employee_id = empID
+                           AND ar.attendance_date BETWEEN startDate AND endDate
+                        ) * cd.hourly_rate
+                        +
+                        cd.rice_subsidy + cd.phone_allowance + cd.clothing_allowance
+                        -
+                        (pd.sss_deduction + pd.philhealth_deduction + pd.pagibig_deduction)
+                    ), 2) AS taxable_income
+            ) AS temp2
+        ) AS `Take-Home Pay`
+
+    FROM employee_payroll_cte epc
+    JOIN compensation_details cd ON epc.employee_id = cd.employee_id
+    JOIN payroll_deductions pd ON epc.employee_id = pd.employee_id;
+    
+	
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `UpdateLeaveIfBalanceSufficient` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateLeaveIfBalanceSufficient`(
+    IN p_employee_id INT,
+    IN p_leave_type VARCHAR(50),
+    IN p_days_applied INT,
+    IN p_leave_from DATE,
+    IN p_leave_to DATE
+)
+BEGIN
+    DECLARE rows_updated INT;
+
+    -- Step 1: Try to deduct balance
+    UPDATE leave_balances lb
+    JOIN leave_type lt ON lb.leave_type_id = lt.leave_type_id
+    SET lb.balance = lb.balance - p_days_applied
+    WHERE lb.employee_id = p_employee_id
+      AND lt.leave_type = p_leave_type
+      AND lb.balance >= p_days_applied;
+
+    SET rows_updated = ROW_COUNT();
+
+    -- Step 2: Only if balance was updated, update request status
+    IF rows_updated > 0 THEN
+        UPDATE leave_ledger lr
+        JOIN request_status rs ON rs.status = 'Approved'
+        JOIN leave_type lt ON lr.leave_type_id = lt.leave_type_id
+        SET lr.request_status_id = rs.request_status_id
+        WHERE lr.employee_id = p_employee_id
+          AND lt.leave_type = p_leave_type
+          AND lr.leave_from = p_leave_from
+          AND lr.leave_to = p_leave_to
+          AND lr.request_status_id != rs.request_status_id;
+    END IF;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
 -- Final view structure for view `all_leave`
 --
 
@@ -746,4 +965,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-17  3:07:16
+-- Dump completed on 2026-10-17  4:21:08
