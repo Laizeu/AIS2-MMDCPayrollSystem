@@ -24,6 +24,7 @@ public class HumanResource extends Employee{
     }
     
     public ArrayList<ArrayList<String>> displayAllDetails(){ //queries data for a specified employee; returns arraylist
+        AccessControl.require(Action.VIEW_EMPLOYEE_RECORDS); // Control 4
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sql = "SELECT e.employee_id, e.last_name, e.first_name, e.birthdate, ad.street, ad.barangay, ad.municipality, ad.city, ad.province, ad.zipcode, \n" +
@@ -74,6 +75,7 @@ public class HumanResource extends Employee{
     }
     
     public Boolean addEmployeeDetails(ArrayList<String> data){
+        AccessControl.require(Action.ADD_EMPLOYEE); // Control 4
         boolean isSuccess = false;
         try {
             // 1. Insert into employee_address
@@ -175,7 +177,8 @@ public class HumanResource extends Employee{
      }
      
     public ArrayList<ArrayList<String>> retrievedAllCredentials(){ //queries all entries from credentials table; returns arraylist
-            ArrayList<ArrayList<String>> data = new ArrayList<>();
+        AccessControl.require(Action.VIEW_CREDENTIALS); // Control 4
+        ArrayList<ArrayList<String>> data = new ArrayList<>();     
         try {
             String sql = "SELECT cr.employee_id, concat(e.last_name, ', ',first_name) as full_name, cr.role " +
                          "FROM credentials cr JOIN employees e ON cr.employee_id = e.employee_id order by employee_id";
@@ -189,6 +192,7 @@ public class HumanResource extends Employee{
      }
      
     public Boolean addNewCredentials(ArrayList<String> data){ //inserts new credentials to credentials table; returns boolean
+        AccessControl.require(Action.ADD_CREDENTIALS); // Control 4
         ArrayList<ArrayList<String>> credentialData = new ArrayList<>(); //To create new arraylist
         boolean isSuccess = false;
         
@@ -261,6 +265,7 @@ public class HumanResource extends Employee{
     }
 
     public boolean updateEmployeeDetails(ArrayList<String> data){ //update specified employee details; returns boolean
+        AccessControl.require(Action.UPDATE_EMPLOYEE); // Control 4
         boolean isSuccess = false;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         LocalDate parsedDate = LocalDate.parse(data.get(3), formatter);

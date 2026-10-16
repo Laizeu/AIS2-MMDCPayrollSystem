@@ -20,7 +20,8 @@ public class Supervisor extends Employee{
     }
     
    //Method for setting a query of retrieving all employee request
-   public ArrayList<ArrayList<String>> employeeRequest(String selectedItem){ 
+   public ArrayList<ArrayList<String>> employeeRequest(String selectedItem){
+       AccessControl.require(Action.VIEW_TEAM_REQUESTS); // Control 4
        ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sqlForLeave = "SELECT e.employee_id, CONCAT(e.first_name, ' ', e.last_name) AS full_name, ll.date_filed, " +
@@ -98,7 +99,8 @@ public class Supervisor extends Employee{
     }
        
     //Method to set query for retrieving of all employee DTR
-    public ArrayList<ArrayList<String>> getDataForDTRTable(String employeeName){ 
+    public ArrayList<ArrayList<String>> getDataForDTRTable(String employeeName){
+        AccessControl.require(Action.VIEW_EMPLOYEE_DTR); // Control 4
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sql = "SELECT e.employee_id, CONCAT(e.last_name, ' ', e.first_name) AS full_name, " +
@@ -119,7 +121,8 @@ public class Supervisor extends Employee{
     }
     
     //Method to set query for updating of employee request to approved
-    public void approvedEmployeeRequest(ArrayList<String> rowData){ 
+    public void approvedEmployeeRequest(ArrayList<String> rowData){
+        AccessControl.require(Action.APPROVE_REQUEST); // Control 4
         if(rowData.get(3).equals("Overtime")){
             try {
                 String sql = "UPDATE overtime_requests orq JOIN request_status rs ON rs.status = ? "
@@ -177,7 +180,8 @@ public class Supervisor extends Employee{
      }
      
     //Method to set query for updating specified employee request status to 'disapproved'
-    public void disapprovedEmployeeRequest(ArrayList<String> rowData){ 
+    public void disapprovedEmployeeRequest(ArrayList<String> rowData){
+        AccessControl.require(Action.DISAPPROVE_REQUEST); // Control 4
           String sql;
         try {
             
@@ -208,6 +212,7 @@ public class Supervisor extends Employee{
       
     //Method to set query for forwarding DTR
     public void forwardDTR(ArrayList<ArrayList <String>> rowData){
+        AccessControl.require(Action.FORWARD_DTR); // Control 4
         int update = 0;
         try {
             String sql = "UPDATE attendance_records ar JOIN request_status rs ON rs.status = ? SET ar.request_status_id = rs.request_status_id " +

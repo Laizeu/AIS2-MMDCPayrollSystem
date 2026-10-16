@@ -1,0 +1,16 @@
+2026-10-17 04:05:56 | DENIED | user=10003 | role=Employee | action=ADD_CREDENTIALS
+2026-10-17 04:05:56 | DENIED | user=10003 | role=Employee | action=APPROVE_REQUEST
+2026-10-17 04:05:56 | DENIED | user=10003 | role=Employee | action=GENERATE_PAYSLIP
+2026-10-17 04:05:56 | DENIED | user=10010 | role=Human Resource | action=FORWARD_DTR
+2026-10-17 04:05:56 | DENIED | user=10002 | role=Payroll Staff | action=VIEW_CREDENTIALS
+2026-10-17 04:05:56 | DENIED | user=10001 | role=Supervisor | action=ADD_EMPLOYEE
+2026-10-17 04:05:56 | DENIED | user=10001 | role=Supervisor | action=GENERATE_PAYSLIP
+2026-10-17 04:05:57 | DENIED | user=none | role=none | action=VIEW_EMPLOYEE_RECORDS
+2026-10-17 04:07:06 | DENIED | user=10003 | role=Employee | action=ADD_CREDENTIALS
+2026-10-17 04:07:06 | DENIED | user=10003 | role=Employee | action=APPROVE_REQUEST
+2026-10-17 04:07:06 | DENIED | user=10003 | role=Employee | action=GENERATE_PAYSLIP
+2026-10-17 04:07:06 | DENIED | user=10010 | role=Human Resource | action=FORWARD_DTR
+2026-10-17 04:07:06 | DENIED | user=10002 | role=Payroll Staff | action=VIEW_CREDENTIALS
+2026-10-17 04:07:06 | DENIED | user=10001 | role=Supervisor | action=ADD_EMPLOYEE
+2026-10-17 04:07:06 | DENIED | user=10001 | role=Supervisor | action=GENERATE_PAYSLIP
+2026-10-17 04:07:06 | DENIED | user=none | role=none | action=VIEW_EMPLOYEE_RECORDS

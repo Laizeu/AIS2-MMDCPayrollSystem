@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 public class PdfGenerator extends DatabaseConnection{
     
     public boolean generatePayslipPDF(String employeeID, java.util.Date startDate, java.util.Date endDate){ //generates a pdf of a specific employee based on the employeeid parameter
+        AccessControl.require(Action.GENERATE_PAYSLIP); // Control 4
         boolean isSuccess = false;
         String filenameJrxml = System.getProperty("user.dir") + "\\src\\files\\PayrollSlip.jrxml";
         String imgLogo = System.getProperty("user.dir") + "\\src\\Images\\logo_payslip.png";

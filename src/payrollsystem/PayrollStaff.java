@@ -60,7 +60,8 @@ public class PayrollStaff extends Employee implements Payroll{
     
     //Method to set query for retrieving of DTR
     @Override
-     public ArrayList<ArrayList<String>> getDataForDTRTable(String employeeName){ 
+     public ArrayList<ArrayList<String>> getDataForDTRTable(String employeeName){
+        AccessControl.require(Action.VIEW_EMPLOYEE_DTR); // Control 4
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sql = "SELECT e.employee_id, CONCAT(e.last_name, ' ', e.first_name) AS full_name, " +
@@ -82,6 +83,7 @@ public class PayrollStaff extends Employee implements Payroll{
     //Methods to set query for retrieving of employee with attendance
     @Override
     public ArrayList<ArrayList<String>> getEmployeeWithAttendance(java.util.Date AttendanceFrom, java.util.Date AttendanceTo){ //returns all employees who have attendancve records between a specified date frame as an arraylist
+        AccessControl.require(Action.VIEW_PAYROLL); // Control 4
         ArrayList<ArrayList<String>> data = new ArrayList<>();
 
         try{

@@ -19,6 +19,7 @@ public class LoginGUI extends javax.swing.JFrame {
 //    DatabaseManager db = new DatabaseManager();
 
     public LoginGUI() {
+        SessionContext.end(); // Control 4: no session until a successful login
         initComponents();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(true);
@@ -172,6 +173,12 @@ public class LoginGUI extends javax.swing.JFrame {
                 if(userDetails.isEmpty()){
                     JOptionPane.showMessageDialog(null, "Credentials Not Found! ");
                 }else{
+                    Role role = Role.fromDb(userDetails.get(0).get(2));
+                    if(role == null){ // Control 4: deny by default, unknown roles are refused
+                        JOptionPane.showMessageDialog(null, "Access denied: your account has no valid role.");
+                        return;
+                    }
+                    SessionContext.start(userDetails.get(0).get(0), role);
                     switch(userDetails.get(0).get(2)){
                         case "Human Resource" -> {
                             dispose();
@@ -188,7 +195,7 @@ public class LoginGUI extends javax.swing.JFrame {
                             PayrollStaffGUI payroll = new PayrollStaffGUI(userDetails);
                             payroll.setVisible(true);
                         }
-                        default -> {
+                        case "Supervisor" -> {
                             dispose();
                             SupervisorGUI supervisor = new SupervisorGUI(userDetails);
                             supervisor.setVisible(true);

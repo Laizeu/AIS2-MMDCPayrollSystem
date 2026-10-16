@@ -1,0 +1,12 @@
+package payrollsystem;
+
+enum Action {
+    // Human Resource
+    VIEW_EMPLOYEE_RECORDS, ADD_EMPLOYEE, UPDATE_EMPLOYEE, VIEW_CREDENTIALS, ADD_CREDENTIALS,
+    // Supervisor
+    VIEW_TEAM_REQUESTS, APPROVE_REQUEST, DISAPPROVE_REQUEST, FORWARD_DTR,
+    // Supervisor and Payroll Staff
+    VIEW_EMPLOYEE_DTR,
+    // Payroll Staff (VIEW_PAYROLL also HR)
+    VIEW_PAYROLL, GENERATE_PAYSLIP
+}
