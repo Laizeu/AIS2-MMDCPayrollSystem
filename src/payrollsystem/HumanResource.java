@@ -205,7 +205,7 @@ public class HumanResource extends Employee{
                 String sql = "INSERT INTO credentials (employee_id, employee_password, role) VALUES (?, ?, ?)";
                 PreparedStatement statement = conn.prepareStatement(sql);
                 statement.setInt(1, Integer.parseInt(data.get(0)));
-                statement.setString(2, data.get(1));
+                statement.setString(2, PasswordUtil.hash(data.get(1))); // Control 1: store only the hash
                 statement.setString(3, data.get(2));
                 int update = statement.executeUpdate();
                 if(update > 0){

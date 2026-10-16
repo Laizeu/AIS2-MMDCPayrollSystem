@@ -27,18 +27,22 @@ public class Login extends Credentials {
     }
     
     @Override
-    public ArrayList<ArrayList<String>> checkCredentials() { //queries credentials from credentials table; returns true if both credentials match an entry in the table
+    public ArrayList<ArrayList<String>> checkCredentials() { // Control 1: fetch the hash by ID, then verify with BCrypt
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
-            String sql = "SELECT e.employee_id, CONCAT(e.last_name, ', ', e.first_name) AS full_name, c.role AS role " +
+            String sql = "SELECT e.employee_id, CONCAT(e.last_name, ', ', e.first_name) AS full_name, c.role AS role, c.employee_password " +
                     "FROM employees e " +
                     "JOIN credentials c ON e.employee_id = c.employee_id " +
-                    "WHERE c.employee_id = ? AND c.employee_password = ?";
-            
-            PreparedStatement statement = statement = conn.prepareStatement(sql);
+                    "WHERE c.employee_id = ?";
+
+            PreparedStatement statement = conn.prepareStatement(sql);
             statement.setInt(1, this.employeeID);
-            statement.setString(2, this.password);
-            data = accountDetails.retrivedDetails(statement);
+            for (ArrayList<String> row : accountDetails.retrivedDetails(statement)) {
+                String storedHash = row.remove(3); // never pass the hash on to the screens
+                if (PasswordUtil.verify(this.password, storedHash)) {
+                    data.add(row);
+                }
+            }
         } catch (SQLException ex) {
             Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
         }
