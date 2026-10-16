@@ -178,6 +178,10 @@ public class LoginGUI extends javax.swing.JFrame {
                         JOptionPane.showMessageDialog(null, "Access denied: your account has no valid role.");
                         return;
                     }
+                    if(login.mustChangePassword() && !ChangePasswordDialog.prompt(this, login, password)){ // Control 1: forced change at first login
+                        JOptionPane.showMessageDialog(null, "You must change your password before you can continue.");
+                        return;
+                    }
                     SessionContext.start(userDetails.get(0).get(0), role);
                     switch(userDetails.get(0).get(2)){
                         case "Human Resource" -> {
@@ -206,7 +210,7 @@ public class LoginGUI extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Invalid Employee ID! ");
             }
         }else{
-            JOptionPane.showMessageDialog(null, "Please provide your email and password! ");
+            JOptionPane.showMessageDialog(null, "Please enter your Employee ID and password.");
         }
     }//GEN-LAST:event_btnLoginActionPerformed
 
