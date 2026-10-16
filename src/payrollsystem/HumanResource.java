@@ -195,6 +195,10 @@ public class HumanResource extends Employee{
         AccessControl.require(Action.ADD_CREDENTIALS); // Control 4
         ArrayList<ArrayList<String>> credentialData = new ArrayList<>(); //To create new arraylist
         boolean isSuccess = false;
+        if(PasswordUtil.isTooLong(data.get(1))){ // Control 1: max password length
+            JOptionPane.showMessageDialog(null, "Password must be at most 72 characters.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
         
         try {
             //To check if credentials already exist

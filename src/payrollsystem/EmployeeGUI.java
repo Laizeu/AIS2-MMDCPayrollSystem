@@ -2025,7 +2025,7 @@ public class EmployeeGUI extends javax.swing.JFrame {
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new EmployeeGUI().setVisible(true);
+                new LoginGUI().setVisible(true); // Control 4: portals open only through login
             }
         });
     }

@@ -2599,7 +2599,7 @@ public class SupervisorGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new SupervisorGUI().setVisible(true);
+                new LoginGUI().setVisible(true); // Control 4: portals open only through login
             }
         });
     }
