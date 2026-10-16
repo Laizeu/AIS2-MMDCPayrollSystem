@@ -80,17 +80,21 @@ final class ChangePasswordDialog extends JDialog {
         if(newPassword.isEmpty() || confirmPassword.isEmpty()){
             return "Please fill in both password fields.";
         }
+        if(newPassword.equals(currentPassword) || newPassword.equals(employeeID)){
+            return "New password cannot be the same as your employee ID or your current password.";
+        }
         if(newPassword.length() < MIN_LENGTH){
             return "Password must be at least " + MIN_LENGTH + " characters.";
         }
         if(PasswordUtil.isTooLong(newPassword)){
             return "Password must be at most 72 characters.";
         }
+        if(!newPassword.matches(".*[A-Z].*") || !newPassword.matches(".*[a-z].*")
+                || !newPassword.matches(".*[0-9].*") || !newPassword.matches(".*[^A-Za-z0-9].*")){
+            return "Password must include an uppercase letter, a lowercase letter, a number and a special character.";
+        }
         if(!newPassword.equals(confirmPassword)){
             return "Passwords do not match.";
-        }
-        if(newPassword.equals(currentPassword) || newPassword.equals(employeeID)){
-            return "New password must be different from your current password and your employee ID.";
         }
         return null;
     }
