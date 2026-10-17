@@ -23,9 +23,11 @@ public class PdfGenerator extends DatabaseConnection{
     public boolean generatePayslipPDF(String employeeID, java.util.Date startDate, java.util.Date endDate){ //generates a pdf of a specific employee based on the employeeid parameter
         AccessControl.require(Action.GENERATE_PAYSLIP); // Control 4
         boolean isSuccess = false;
-        String filenameJrxml = System.getProperty("user.dir") + "\\src\\files\\PayrollSlip.jrxml";
-        String imgLogo = System.getProperty("user.dir") + "\\src\\Images\\logo_payslip.png";
-        String exportDirectory = System.getProperty("user.dir") + String.format("\\src\\temp\\%s_%s-%s.pdf", employeeID, startDate, endDate);
+        DefaultJasperReportsContext.getInstance().setProperty("net.sf.jasperreports.awt.ignore.missing.font", "true"); // use a fallback font when Segoe UI is missing (macOS)
+        String baseDir = System.getProperty("user.dir");
+        String filenameJrxml = new File(baseDir, "src/files/PayrollSlip.jrxml").getPath(); // works on Windows and macOS
+        String imgLogo = new File(baseDir, "src/Images/logo_payslip.png").getPath();
+        String exportDirectory = new File(baseDir, String.format("src/temp/%s_%s-%s.pdf", employeeID, startDate, endDate)).getPath();
         try{
             JasperDesign jasperDesign = JRXmlLoader.load(filenameJrxml);
             JasperReport jasperReport = JasperCompileManager.compileReport(jasperDesign);
