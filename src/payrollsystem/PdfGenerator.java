@@ -70,6 +70,7 @@ public class PdfGenerator extends DatabaseConnection{
     }
     
     public Object[] readEmployeeDetailsFromDB(String employeeID, java.util.Date startDate, java.util.Date endDate){ //reads data from database and returns data in relevant formatting
+        AccessControl.require(Action.VIEW_PAYROLL); // Control 4: salary breakdown of any employee
         Object[] data = null;
         try{
             java.sql.Connection conn = this.getDBConnection();
@@ -114,6 +115,7 @@ public class PdfGenerator extends DatabaseConnection{
     }
     
     public boolean insertPdfToDB(byte[] file, java.util.Date startDate, java.util.Date endDate, int employeeID){ //inserts generated pdf to payslip table in the database
+        AccessControl.require(Action.GENERATE_PAYSLIP); // Control 4: writes a payslip row
         boolean isSuccess = false;
         try{
             String query = "INSERT INTO payroll_system_db.payslip(employee_id, period_id, payslip_file) VALUES (?, (SELECT period_id FROM payroll_period WHERE period_from = ? AND period_to = ?), ?)";

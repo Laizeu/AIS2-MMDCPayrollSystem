@@ -15,15 +15,15 @@ final class AccessControl {
 
     private static final Map<Role, Set<Action>> PERMISSIONS = new EnumMap<>(Role.class);
     static {
-        PERMISSIONS.put(Role.EMPLOYEE, EnumSet.noneOf(Action.class));
+        PERMISSIONS.put(Role.EMPLOYEE, EnumSet.of(Action.VIEW_OWN_RECORDS));
         PERMISSIONS.put(Role.HUMAN_RESOURCE, EnumSet.of(
                 Action.VIEW_EMPLOYEE_RECORDS, Action.ADD_EMPLOYEE, Action.UPDATE_EMPLOYEE,
-                Action.VIEW_CREDENTIALS, Action.ADD_CREDENTIALS, Action.VIEW_PAYROLL));
+                Action.VIEW_CREDENTIALS, Action.ADD_CREDENTIALS, Action.VIEW_PAYROLL, Action.VIEW_OWN_RECORDS));
         PERMISSIONS.put(Role.SUPERVISOR, EnumSet.of(
                 Action.VIEW_TEAM_REQUESTS, Action.APPROVE_REQUEST, Action.DISAPPROVE_REQUEST,
-                Action.FORWARD_DTR, Action.VIEW_EMPLOYEE_DTR));
+                Action.FORWARD_DTR, Action.VIEW_EMPLOYEE_DTR, Action.VIEW_OWN_RECORDS));
         PERMISSIONS.put(Role.PAYROLL_STAFF, EnumSet.of(
-                Action.VIEW_EMPLOYEE_DTR, Action.VIEW_PAYROLL, Action.GENERATE_PAYSLIP));
+                Action.VIEW_EMPLOYEE_DTR, Action.VIEW_PAYROLL, Action.GENERATE_PAYSLIP, Action.VIEW_OWN_RECORDS));
     }
 
     private AccessControl(){
@@ -42,11 +42,27 @@ final class AccessControl {
         }
     }
 
+    // First line of every self-service method: a logged-in user may only reach their own records.
+    static void requireSelf(int ownerEmployeeID){
+        Role role = SessionContext.getRole();
+        String userID = SessionContext.getUserID();
+        if(!isAllowed(role, Action.VIEW_OWN_RECORDS) || !String.valueOf(ownerEmployeeID).equals(userID)){
+            logDenied(userID, role, Action.VIEW_OWN_RECORDS, "owner=" + ownerEmployeeID);
+            throw new SecurityException("Access denied: " + (role == null ? "no session" : "user " + userID)
+                    + " cannot open the records of employee " + ownerEmployeeID);
+        }
+    }
+
     private static void logDenied(String userID, Role role, Action action){
+        logDenied(userID, role, action, null);
+    }
+
+    private static void logDenied(String userID, Role role, Action action, String target){
         String time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         try(PrintWriter writer = new PrintWriter(new FileWriter(DENIED_LOG, true))){
             writer.println(time + " | DENIED | user=" + (userID == null ? "none" : userID)
-                    + " | role=" + (role == null ? "none" : role.getDbValue()) + " | action=" + action);
+                    + " | role=" + (role == null ? "none" : role.getDbValue()) + " | action=" + action
+                    + (target == null ? "" : " | " + target));
         }catch(IOException e){
             e.printStackTrace();
         }

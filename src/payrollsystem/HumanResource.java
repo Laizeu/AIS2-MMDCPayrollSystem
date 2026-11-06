@@ -63,6 +63,7 @@ public class HumanResource extends Employee{
     }
     
     public ArrayList<ArrayList<String>> nextEmployeeID(){ //returns last employee_id + 1; returns arraylist
+        AccessControl.require(Action.ADD_EMPLOYEE); // Control 4
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sql = "SELECT MAX(employee_id + 1) AS greatest_employee_id FROM employees";
@@ -158,6 +159,7 @@ public class HumanResource extends Employee{
     }
     
     public  ArrayList<ArrayList<String>> retrievedEmploymentStatus(String request){ //queries either employee status or position; returns arraylist
+        AccessControl.require(Action.VIEW_EMPLOYEE_RECORDS); // Control 4
             ArrayList<ArrayList<String>> data = new ArrayList<>();
             String sql;
         try {
@@ -195,8 +197,9 @@ public class HumanResource extends Employee{
         AccessControl.require(Action.ADD_CREDENTIALS); // Control 4
         ArrayList<ArrayList<String>> credentialData = new ArrayList<>(); //To create new arraylist
         boolean isSuccess = false;
-        if(PasswordUtil.isTooLong(data.get(1))){ // Control 1: max password length
-            JOptionPane.showMessageDialog(null, "Password must be at most 72 characters.", "Error", JOptionPane.ERROR_MESSAGE);
+        String passwordError = PasswordPolicy.check(data.get(1), data.get(0), null); // Control 1: same rules as every other password
+        if(passwordError != null){
+            JOptionPane.showMessageDialog(null, passwordError, "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         
@@ -218,6 +221,7 @@ public class HumanResource extends Employee{
                 int update = statement.executeUpdate();
                 if(update > 0){
                     isSuccess = true;
+                    SecurityLog.event("CREDENTIAL_ADDED", SessionContext.getUserID(), "for=" + data.get(0) + " role=" + data.get(2));
                     JOptionPane.showMessageDialog(null, "Successfuly Added New Credentials!", "Success", JOptionPane.INFORMATION_MESSAGE);
                 }
                 accountDetails.closeDBRequest(statement);

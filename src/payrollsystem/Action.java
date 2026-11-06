@@ -8,5 +8,7 @@ enum Action {
     // Supervisor and Payroll Staff
     VIEW_EMPLOYEE_DTR,
     // Payroll Staff (VIEW_PAYROLL also HR)
-    VIEW_PAYROLL, GENERATE_PAYSLIP
+    VIEW_PAYROLL, GENERATE_PAYSLIP,
+    // Every role: only the logged-in user's own records (checked with AccessControl.requireSelf)
+    VIEW_OWN_RECORDS
 }

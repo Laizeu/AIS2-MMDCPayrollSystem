@@ -171,17 +171,21 @@ public class LoginGUI extends javax.swing.JFrame {
                 Login login = new Login(checkID, password);
                 ArrayList<ArrayList<String>> userDetails = login.checkCredentials();
                 if(userDetails.isEmpty()){
+                    SecurityLog.event("LOGIN_FAILED", String.valueOf(checkID), "wrong ID or password");
                     JOptionPane.showMessageDialog(null, "Credentials Not Found! ");
                 }else{
                     Role role = Role.fromDb(userDetails.get(0).get(2));
                     if(role == null){ // Control 4: deny by default, unknown roles are refused
+                        SecurityLog.event("LOGIN_BLOCKED", String.valueOf(checkID), "no valid role");
                         JOptionPane.showMessageDialog(null, "Access denied: your account has no valid role.");
                         return;
                     }
                     if(login.mustChangePassword() && !ChangePasswordDialog.prompt(this, login, password)){ // Control 1: forced change at first login
+                        SecurityLog.event("LOGIN_BLOCKED", String.valueOf(checkID), "forced password change not completed");
                         JOptionPane.showMessageDialog(null, "You must change your password before you can continue.");
                         return;
                     }
+                    SecurityLog.event("LOGIN_SUCCESS", userDetails.get(0).get(0), "role=" + role.getDbValue());
                     SessionContext.start(userDetails.get(0).get(0), role);
                     switch(userDetails.get(0).get(2)){
                         case "Human Resource" -> {
@@ -206,8 +210,13 @@ public class LoginGUI extends javax.swing.JFrame {
                         }
                     }
                 }
-             }catch(Exception e){
+             }catch(NumberFormatException e){
+                SecurityLog.event("LOGIN_FAILED", "invalid-id", "Employee ID is not a number");
                 JOptionPane.showMessageDialog(null, "Invalid Employee ID! ");
+            }catch(SecurityException e){ // Control 4: already written to access_denied.log
+                JOptionPane.showMessageDialog(null, "Access denied: you do not have permission for this action.");
+            }catch(Exception e){
+                JOptionPane.showMessageDialog(null, "Login failed. Please try again.");
             }
         }else{
             JOptionPane.showMessageDialog(null, "Please enter your Employee ID and password.");
@@ -241,10 +250,29 @@ public class LoginGUI extends javax.swing.JFrame {
         }
         //</editor-fold>
 
+        installDeniedHandler();
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new LoginGUI().setVisible(true);
+            }
+        });
+    }
+
+    // Control 4: a blocked action (SecurityException) shows a clear message instead of failing silently.
+    // The denial itself is already written to access_denied.log by AccessControl.
+    static void installDeniedHandler(){
+        Thread.setDefaultUncaughtExceptionHandler((thread, error) -> {
+            Throwable cause = error;
+            while(cause != null && !(cause instanceof SecurityException)){
+                cause = cause.getCause();
+            }
+            if(cause != null){
+                JOptionPane.showMessageDialog(null, "Access denied: you do not have permission for this action.",
+                        "Access denied", JOptionPane.WARNING_MESSAGE);
+            }else{
+                error.printStackTrace();
             }
         });
     }

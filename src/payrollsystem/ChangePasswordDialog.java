@@ -14,7 +14,7 @@ import javax.swing.JPasswordField;
 
 // Control 1: users still on their initial password must set a new one before any portal opens.
 final class ChangePasswordDialog extends JDialog {
-    static final int MIN_LENGTH = 8;
+    static final int MIN_LENGTH = PasswordPolicy.MIN_LENGTH;
 
     private final JPasswordField txtNewPassword = new JPasswordField(20);
     private final JPasswordField txtConfirmPassword = new JPasswordField(20);
@@ -68,6 +68,7 @@ final class ChangePasswordDialog extends JDialog {
         }
         if(login.changePassword(newPassword)){
             changed = true;
+            SecurityLog.event("PASSWORD_CHANGED", String.valueOf(login.getEmployeeID()), "forced first-login change");
             JOptionPane.showMessageDialog(this, "Password changed successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         }else{
@@ -80,18 +81,9 @@ final class ChangePasswordDialog extends JDialog {
         if(newPassword.isEmpty() || confirmPassword.isEmpty()){
             return "Please fill in both password fields.";
         }
-        if(newPassword.equals(currentPassword) || newPassword.equals(employeeID)){
-            return "New password cannot be the same as your employee ID or your current password.";
-        }
-        if(newPassword.length() < MIN_LENGTH){
-            return "Password must be at least " + MIN_LENGTH + " characters.";
-        }
-        if(PasswordUtil.isTooLong(newPassword)){
-            return "Password must be at most 72 characters.";
-        }
-        if(!newPassword.matches(".*[A-Z].*") || !newPassword.matches(".*[a-z].*")
-                || !newPassword.matches(".*[0-9].*") || !newPassword.matches(".*[^A-Za-z0-9].*")){
-            return "Password must include an uppercase letter, a lowercase letter, a number and a special character.";
+        String error = PasswordPolicy.check(newPassword, employeeID, currentPassword); // shared rules (Control 1)
+        if(error != null){
+            return error;
         }
         if(!newPassword.equals(confirmPassword)){
             return "Passwords do not match.";

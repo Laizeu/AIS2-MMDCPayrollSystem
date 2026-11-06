@@ -10,9 +10,13 @@ final class SessionContext {
     static void start(String id, Role userRole){
         userID = id;
         role = userRole;
+        SecurityLog.event("SESSION_START", id, "role=" + (userRole == null ? "none" : userRole.getDbValue()));
     }
 
     static void end(){
+        if(userID != null || role != null){
+            SecurityLog.event("SESSION_END", userID, "logout or return to login screen");
+        }
         userID = null;
         role = null;
     }

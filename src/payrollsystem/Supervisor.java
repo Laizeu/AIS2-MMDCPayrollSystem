@@ -85,6 +85,7 @@ public class Supervisor extends Employee{
     
     //Method to set query for retrieving of complete employee name
     public ArrayList<ArrayList<String>> employeeNames(){  
+        AccessControl.require(Action.VIEW_EMPLOYEE_DTR); // Control 4: supervisor's team list
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sql = "SELECT CONCAT(last_name, ', ',first_name) AS full_name FROM employees WHERE immediate_supervisor = ? ORDER BY full_name";

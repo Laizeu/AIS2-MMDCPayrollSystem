@@ -32,6 +32,7 @@ public class PayrollStaff extends Employee implements Payroll{
     //Method to set query for generating of payslip
     @Override
     public void generatePayslip(){
+        AccessControl.require(Action.GENERATE_PAYSLIP); // Control 4
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sql = "SELECT employee_id FROM employees ORDER BY employee_id";
@@ -46,6 +47,7 @@ public class PayrollStaff extends Employee implements Payroll{
     //Method to set query for retrieving of Employee Full Name
     @Override
     public ArrayList<ArrayList<String>> employeeNames(){  
+        AccessControl.require(Action.VIEW_EMPLOYEE_DTR); // Control 4: list of all employees
         ArrayList<ArrayList<String>> data = new ArrayList<>();
         try {
             String sql = "SELECT CONCAT(last_name, ', ',first_name) AS full_name FROM employees ORDER BY last_name";

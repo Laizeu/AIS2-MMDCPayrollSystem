@@ -69,6 +69,9 @@ public class Login extends Credentials {
         if (matchedRole == null) {
             return false; // only after a successful checkCredentials()
         }
+        if (PasswordPolicy.check(newPassword, String.valueOf(this.employeeID), this.password) != null) {
+            return false; // Control 1: the backend applies the same rules as the screen
+        }
         String sql = "UPDATE credentials SET employee_password = ?, must_change_password = 0 WHERE employee_id = ? AND role = ?";
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, PasswordUtil.hash(newPassword));

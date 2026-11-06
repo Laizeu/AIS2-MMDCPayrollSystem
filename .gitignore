@@ -6,3 +6,6 @@ nbproject/project.properties
 /dist/
 /lib/jasper/JavaApplication2/nbproject/private/
 /access_denied.log
+/security_events.log
+/DownloadFiles/
+/src/temp/
