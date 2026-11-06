@@ -40,12 +40,13 @@ public class PasswordPolicyCheck {
                 count("SELECT COUNT(*) FROM credentials WHERE employee_id = 10005 AND role = 'Payroll Staff'") == rowsBefore);
         SessionContext.end();
 
-        Login login = new Login(10002, args.length > 0 ? args[0] : "10002");
-        if(login.checkCredentials().isEmpty()){
-            check("C1-P9 (skipped: pass the current password of 10002 as an argument)", false);
-        }else{
-            check("C1-P9 Login.changePassword('abc') refused by the backend", !login.changePassword("abc"));
-        }
+        // C1-P9: call changePassword() as if the login had succeeded (no real password needed).
+        // The rule check runs before any SQL, so a refused password never touches the database (see C1-P17).
+        Login login = new Login(10002, "not-used");
+        java.lang.reflect.Field matched = Login.class.getDeclaredField("matchedRole");
+        matched.setAccessible(true);
+        matched.set(login, "Payroll Staff");
+        check("C1-P9 Login.changePassword('abc') refused by the backend", !login.changePassword("abc"));
 
         // C. BCrypt truncation: the 72-byte limit is applied when checking, too
         String hash72 = PasswordUtil.hash(LONG_72);

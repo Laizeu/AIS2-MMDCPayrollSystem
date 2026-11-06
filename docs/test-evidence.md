@@ -127,5 +127,4 @@ CHECKSUM TABLE credentials, employees, leave_ledger, overtime_requests, attendan
 1. Import `Database Script File/MotorPH Payroll System Database Script.sql`.
 2. Run `V3__verify_after_migration.sql`. Save the checksum output.
 3. NetBeans: run `RbacCheck.java`, `PasswordPolicyCheck.java` and `StressCheck.java`. Screenshot each Output panel.
-   - `PasswordPolicyCheck` logs in as 10002 to test `changePassword`. If 10002 has already changed its password, pass the current one as the argument (Run → Set Project Configuration → Arguments).
 4. Open `access_denied.log` and `security_events.log`. Screenshot them.
