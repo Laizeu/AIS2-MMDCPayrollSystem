@@ -1,0 +1,18 @@
+# StressCheck, 2026-11-06, test copy of payroll_system_db (MySQL 8.0.46, max_connections = 151), 2 CPU cores
+
+## BEFORE the connection fix (code = branch feedback-fixes without the DatabaseConnection change)
+first error at attempt 177: java.awt.HeadlessException
+C1-S1 500 wrong-password logins: rejected=363 errors=137 total=120.8s avg=242ms min=1ms max=906ms
+# From attempt 177 MySQL refused new connections ("Too many connections"); 137 attempts ended in "Database Connection Failed!".
+# While the connections are used up, no user of that MySQL server can log in (denial of service).
+# Cause: each Login object opened 5 MySQL connections (AccountDetails x2, its accountDetails field x2,
+# Login.connection x1) and none were ever closed.
+
+## AFTER the fix (one shared connection, reopened only if lost)
+C1-S1 500 wrong-password logins: rejected=500 errors=0 total=149.3s avg=299ms min=274ms max=1047ms
+      MySQL Threads_connected after the run: 1
+C1-S2 offline guessing vs stolen hash of 10003 (still on initial password): CRACKED ('10003') after 3 guesses in 0.9s (3.3 guesses/s on 1 CPU core)
+      at that speed a 14,344,391-word list (rockyou.txt) takes 51 days per hash on 1 core
+C1-S3 same list vs a changed, policy-compliant password: NOT cracked (57 guesses)
+C4-S1 1000 rapid forbidden calls: denied=1000 logged=1000 total=52ms
+C4-S2 permission check cost: 0.10 microseconds per check (100,000 checks)

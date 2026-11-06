@@ -1,0 +1,33 @@
+# RbacCheck output, branch feedback-fixes, 2026-11-06, test copy of payroll_system_db (MySQL 8.0.46)
+PASS  C4-T1 Employee allowed exactly [VIEW_OWN_RECORDS]
+PASS  C4-T2 Human Resource allowed exactly [VIEW_EMPLOYEE_RECORDS, ADD_EMPLOYEE, UPDATE_EMPLOYEE, VIEW_CREDENTIALS, ADD_CREDENTIALS, VIEW_PAYROLL, VIEW_OWN_RECORDS]
+PASS  C4-T3 Supervisor allowed exactly [VIEW_TEAM_REQUESTS, APPROVE_REQUEST, DISAPPROVE_REQUEST, FORWARD_DTR, VIEW_EMPLOYEE_DTR, VIEW_OWN_RECORDS]
+PASS  C4-T4 Payroll Staff allowed exactly [VIEW_EMPLOYEE_DTR, VIEW_PAYROLL, GENERATE_PAYSLIP, VIEW_OWN_RECORDS]
+PASS  C4-T5 unknown role "Admin" gets no role (denied)
+PASS  C4-T6 Employee adds an HR credential -> DENIED
+PASS  C4-T7 Employee approves a request -> DENIED
+PASS  C4-T8 Employee generates a payslip -> DENIED
+PASS  C4-T9 Human Resource forwards DTR -> DENIED
+PASS  C4-T10 Payroll Staff views all credentials -> DENIED
+PASS  C4-T11 Supervisor adds an employee -> DENIED
+PASS  C4-T12 Supervisor generates a payslip -> DENIED
+PASS  C4-T13 No login views employee records -> DENIED
+PASS  C4-T14 Human Resource views employee records -> ALLOWED
+PASS  C4-T15 Human Resource views credentials -> ALLOWED
+PASS  C4-T16 Supervisor views leave requests -> ALLOWED
+PASS  C4-T17 Payroll Staff views payroll -> ALLOWED
+PASS  C4-T20 No login reads employee 10005 salary and government IDs -> DENIED
+PASS  C4-T21 Employee 10003 reads employee 10005 DTR -> DENIED
+PASS  C4-T22 Employee 10003 downloads employee 10005 payslip -> DENIED
+PASS  C4-T23 Employee 10003 files a leave request as 10005 -> DENIED
+PASS  C4-T24 Human Resource files overtime as 10005 -> DENIED
+PASS  C4-T25 Supervisor reads 10005 payroll breakdown -> DENIED
+PASS  C4-T26 Employee inserts a fake payslip for 10005 -> DENIED
+PASS  C4-T27 Employee lists all employee names -> DENIED
+PASS  C4-T28 Employee 10003 reads own personal details -> ALLOWED
+PASS  C4-T29 Payroll Staff reads 10005 payroll breakdown -> ALLOWED
+      checksum before: payroll_system_db.credentials=2339132661;payroll_system_db.employees=1770034557;payroll_system_db.leave_ledger=3334873021;payroll_system_db.overtime_requests=1070418011;payroll_system_db.attendance_records=2019175942;payroll_system_db.payslip=2549121791;
+      checksum after:  payroll_system_db.credentials=2339132661;payroll_system_db.employees=1770034557;payroll_system_db.leave_ledger=3334873021;payroll_system_db.overtime_requests=1070418011;payroll_system_db.attendance_records=2019175942;payroll_system_db.payslip=2549121791;
+PASS  C4-T18 database unchanged during the tests
+PASS  C4-T19 access_denied.log got one line per denial (16 expected, got 16)
+Control 4: 29 passed, 0 failed

@@ -1,0 +1,11 @@
+# Sample of security_events.log from the GUI smoke test on 2026-11-06 (real LoginGUI, virtual screen).
+2026-11-06 18:51:01 | LOGIN_FAILED | user=10010 | wrong ID or password
+2026-11-06 18:51:10 | LOGIN_SUCCESS | user=10001 | role=Supervisor
+2026-11-06 18:51:10 | SESSION_START | user=10001 | role=Supervisor
+2026-11-06 18:51:19 | LOGIN_SUCCESS | user=10002 | role=Payroll Staff
+2026-11-06 18:51:19 | SESSION_START | user=10002 | role=Payroll Staff
+2026-11-06 18:51:28 | LOGIN_SUCCESS | user=10003 | role=Employee
+2026-11-06 18:51:28 | SESSION_START | user=10003 | role=Employee
+2026-11-06 18:51:45 | LOGIN_SUCCESS | user=10018 | role=Human Resource
+2026-11-06 18:51:45 | SESSION_START | user=10018 | role=Human Resource
+2026-11-06 18:52:05 | LOGIN_FAILED | user=10003 | wrong ID or password

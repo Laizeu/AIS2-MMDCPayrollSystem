@@ -1,0 +1,11 @@
+# GUI smoke test, 2026-11-06: the real LoginGUI was opened on a virtual screen, the ID and password were typed
+# and Login was clicked. The lines show which window opened. Test copy of payroll_system_db (MySQL 8.0.46).
+10001 Supervisor     -> SupervisorGUI 'SUPERVISOR PORTAL' opened; session user=10001 role=SUPERVISOR
+10002 Payroll Staff  -> PayrollStaffGUI opened; session user=10002 role=PAYROLL_STAFF
+10003 Employee       -> EmployeeGUI 'EMPLOYEE PORTAL' opened; session user=10003 role=EMPLOYEE
+10018 HR             -> HumanResourceGUI opened; session user=10018 role=HUMAN_RESOURCE
+10018 HR + forbidden action (generate payslip) -> dialog 'Access denied': "Access denied: you do not have permission for this action."
+10025 initial password -> 'Change Your Password' dialog; no portal, no session (forced change still works)
+10003 wrong password -> "Credentials Not Found!"; no session
+Payroll flow (headless): Payroll Staff released the Oct 2024 payslip for 10005 -> true;
+                         Employee 10005 downloaded own Oct 2024 payslip -> true; viewed own details and June DTR (20 rows)

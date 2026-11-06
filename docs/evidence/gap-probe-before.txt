@@ -1,0 +1,10 @@
+# Gap probe BEFORE the feedback fixes (code at commit bead1b1 = local dev-security-controls, 2026-11-06)
+# Run on a test copy of payroll_system_db (MySQL 8.0.46). GAP = the attack worked.
+GAP      G1 no login reads employee 10005 salary + SSS (Employee.viewPersonalDetails)  [salary=52670.0 sss=50-5577638-1]
+GAP      G2 Employee 10003 downloads employee 10005 payslip (Employee.downloadPayslip)  [saved DownloadFiles/10005_payslip.pdf (24868 bytes)]
+GAP      G3 Employee 10003 reads employee 10005 DTR (Employee.getDTR)  [20 rows]
+GAP      G4 Supervisor reads 10005 payroll breakdown (PdfGenerator.readEmployeeDetailsFromDB)  [net pay=48389.07]
+GAP      G5 Employee lists all employee names (PayrollStaff.employeeNames)  [34 names]
+GAP      G8 Employee 10003 inserts a fake payslip for 10005 (PdfGenerator.insertPdfToDB)  [fake payslip row inserted]
+GAP      G6 HR backend saves weak password 'test1234' (HumanResource.addNewCredentials)  [row saved]
+GAP      G7 backend accepts new password 'abc' after login (Login.changePassword)  [saved]

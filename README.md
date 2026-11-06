@@ -20,6 +20,23 @@ Daily logs, DTR submission, and approval workflows integrated into user dashboar
 
 ---
 
+## 🔐 Security Controls (MO-IT153 IAS 2, Group 18)
+
+Branch `dev-security-controls` adds two controls from the IAS 1 design:
+- **Control 1: BCrypt password hashing.** jBCrypt 1.0.2, work factor 12, 72-byte limit, forced password change at first login, one password rule set (`PasswordPolicy`) used everywhere.
+- **Control 4: RBAC enforced per action.** `AccessControl.require(...)` on every sensitive backend method, `requireSelf(...)` on self-service records, default deny, and denials logged.
+
+Documentation:
+- [Database migrations](docs/database-migrations.md): V1/V2 scripts, password migration, verify and rollback
+- [Cross-platform fixes](docs/cross-platform-fixes.md): Windows to macOS issues and fixes
+- [Security logging and session management](docs/security-logging-and-session.md)
+- [Test evidence](docs/test-evidence.md): authorization bypass, SQL injection, password truncation, database integrity
+- Test runners: `src/payrollsystem/RbacCheck.java`, `src/payrollsystem/PasswordPolicyCheck.java` (right-click, then Run File)
+
+Requires JDK 23+ with `--enable-preview` (set in the project) or JDK 25+.
+
+---
+
 ## 💻 Installation
 
 ### System Requirements

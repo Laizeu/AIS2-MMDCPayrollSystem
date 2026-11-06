@@ -1,0 +1,9 @@
+# Sample of access_denied.log from RbacCheck on 2026-11-06 (the new feedback-round denials).
+2026-11-06 18:49:30 | DENIED | user=none | role=none | action=VIEW_OWN_RECORDS | owner=10005
+2026-11-06 18:49:30 | DENIED | user=10003 | role=Employee | action=VIEW_OWN_RECORDS | owner=10005
+2026-11-06 18:49:30 | DENIED | user=10010 | role=Human Resource | action=VIEW_OWN_RECORDS | owner=10005
+2026-11-06 18:49:30 | DENIED | user=10001 | role=Supervisor | action=VIEW_PAYROLL
+2026-11-06 18:49:30 | DENIED | user=10003 | role=Employee | action=GENERATE_PAYSLIP
+2026-11-06 18:49:30 | DENIED | user=10003 | role=Employee | action=VIEW_EMPLOYEE_DTR
+# From the GUI smoke test: HR portal open, forbidden action triggered -> "Access denied" pop-up shown
+2026-11-06 18:51:50 | DENIED | user=10018 | role=Human Resource | action=GENERATE_PAYSLIP
