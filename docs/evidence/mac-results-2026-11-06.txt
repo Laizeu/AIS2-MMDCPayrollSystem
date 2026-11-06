@@ -1,0 +1,28 @@
+# Results on the team's MacBook Pro, real payroll_system_db, branch feedback-fixes, 2026-11-06 (NetBeans 25)
+# Screenshots: RbacCheck, PasswordPolicyCheck and StressCheck Output panels.
+
+## RbacCheck
+Control 4: 29 passed, 0 failed
+16 bypass attempts DENIED, 16 lines added to access_denied.log (C4-T19)
+checksum before: credentials=327333591; employees=523631197; leave_ledger=204265530; overtime_requests=1070418011; attendance_records=3709684992; payslip=3738284183
+checksum after:  credentials=327333591; employees=523631197; leave_ledger=204265530; overtime_requests=1070418011; attendance_records=3709684992; payslip=3738284183
+-> identical: the attacks changed nothing (C4-T18)
+
+## PasswordPolicyCheck
+Control 1: 17 passed, 0 failed
+credentials checksum before = after = 327333591 (C1-P17)
+The C1-P8 "Password must include an uppercase letter, ..." pop-up appeared: HR backend refused 'test1234'.
+
+## StressCheck
+C1-S1 500 wrong-password logins: rejected=500 errors=0 total=176.6s avg=353ms min=332ms max=1325ms
+      MySQL Threads_connected after the run: 2
+C1-S2 offline guessing vs stolen hash of 10003: NOT cracked after 57 guesses in 20.5s (2.8 guesses/s on 1 CPU core)
+      at that speed a 14,344,391-word list (rockyou.txt) takes 60 days per hash on 1 core
+C1-S3 same list vs a changed, policy-compliant password: NOT cracked (57 guesses)
+C4-S1 1000 rapid forbidden calls: denied=1000 logged=1000 total=144ms
+C4-S2 permission check cost: 0.09 microseconds per check (100,000 checks)
+
+## Test copy vs real database (why C1-S2 differs)
+Test copy (repo DB script, 2026-11-06): 10003 still on its initial password (= employee ID) -> CRACKED in 3 guesses.
+Real database (this Mac): 10003 had completed the forced password change -> NOT cracked.
+-> Hashing alone does not protect a guessable password; the forced change at first login does.

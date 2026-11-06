@@ -31,7 +31,7 @@ Documentation:
 - [Cross-platform fixes](docs/cross-platform-fixes.md): Windows to macOS issues and fixes
 - [Security logging and session management](docs/security-logging-and-session.md)
 - [Test evidence](docs/test-evidence.md): authorization bypass, SQL injection, password truncation, database integrity
-- Test runners: `src/payrollsystem/RbacCheck.java`, `src/payrollsystem/PasswordPolicyCheck.java` (right-click, then Run File)
+- Test runners (NetBeans: Test Packages → payrollsystem): `test/payrollsystem/RbacCheck.java`, `PasswordPolicyCheck.java`, `StressCheck.java` (right-click, then Run File)
 
 Requires JDK 23+ with `--enable-preview` (set in the project) or JDK 25+.
 

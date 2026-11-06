@@ -2,7 +2,7 @@
 
 One page per attack the mentor asked about. Each row gives the test ID, how to run it, the expected result, the actual result, and where the proof is.
 - Full steps for the Milestone 2 tests (C1-FT/AT, C4-FT/AT): Implementation Log, sheets "Control 1 …" and "Control 4 …".
-- Automated tests (run in NetBeans with right-click, then **Run File**):
+- Automated tests in `test/payrollsystem/` (NetBeans: **Test Packages → payrollsystem**, right-click, then **Run File**):
   - `RbacCheck.java`: 29 checks (Control 4).
   - `PasswordPolicyCheck.java`: 17 checks (Control 1, feedback round).
 - Latest run: 2026-11-06, on the team's Mac with the real database (`docs/evidence/mac-results-2026-11-06.txt`) and on a test copy. Outputs are in `docs/evidence/`. Screenshots from the team's Mac use the names in the Evidence column.
