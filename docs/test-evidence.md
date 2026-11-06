@@ -5,7 +5,7 @@ One page per attack the mentor asked about. Each row gives the test ID, how to r
 - Automated tests (run in NetBeans with right-click, then **Run File**):
   - `RbacCheck.java`: 29 checks (Control 4).
   - `PasswordPolicyCheck.java`: 17 checks (Control 1, feedback round).
-- Latest run: 2026-11-06 on a test copy of `payroll_system_db`. Outputs are in `docs/evidence/`. Screenshots from the team's Mac use the names in the Evidence column.
+- Latest run: 2026-11-06, on the team's Mac with the real database (`docs/evidence/mac-results-2026-11-06.txt`) and on a test copy. Outputs are in `docs/evidence/`. Screenshots from the team's Mac use the names in the Evidence column.
 
 ## 0. Before and after the feedback fixes
 
@@ -117,7 +117,7 @@ CHECKSUM TABLE credentials, employees, leave_ledger, overtime_requests, attendan
 | ID | Test | Result |
 |---|---|---|
 | C1-S1 | 500 rapid wrong-password logins on one account | **Before:** from attempt 177 MySQL refused new connections and 137 attempts ended in "Database Connection Failed!", so no one could log in (connection leak: 5 MySQL connections per login attempt, never closed; limit 151). **After** the shared-connection fix: 500/500 rejected, 0 errors, about 300 ms per attempt, 1 connection open at the end |
-| C1-S2 | Offline guessing against a stolen hash (10003, still on its initial password) with a list of employee IDs | Cracked in 3 guesses. BCrypt slows guessing to about 3 per second per CPU core, but it cannot protect a password that is easy to guess. That is why the forced change and `PasswordPolicy` are needed |
+| C1-S2 | Offline guessing against a stolen hash of 10003 with a list of employee IDs + common passwords | **Test copy** (10003 still on its initial password): cracked in 3 guesses. **Real database on the Mac** (10003 already changed it): NOT cracked after 57 guesses. BCrypt slows guessing to about 3 per second per CPU core, but it cannot protect a password that is easy to guess. That is why the forced change and `PasswordPolicy` are needed |
 | C1-S3 | Same list against a changed, policy-compliant password | Not cracked |
 | C4-S1 | 1000 rapid forbidden calls | 1000 denied, 1000 logged, 52 ms in total |
 | C4-S2 | Cost of one permission check | about 0.1 µs (no visible slowdown) |

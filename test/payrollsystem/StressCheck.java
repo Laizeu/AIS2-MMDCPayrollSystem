@@ -38,7 +38,7 @@ public class StressCheck {
         for (String w : words) { tries++; if (PasswordUtil.verify(w, hash)) { found = w; break; } }
         double secs = (System.nanoTime() - s2) / 1e9;
         double rate = tries / secs;
-        System.out.printf("C1-S2 offline guessing vs stolen hash of 10003 (still on initial password): %s after %d guesses in %.1fs (%.1f guesses/s on 1 CPU core)%n",
+        System.out.printf("C1-S2 offline guessing vs stolen hash of 10003 (list: employee IDs + common passwords): %s after %d guesses in %.1fs (%.1f guesses/s on 1 CPU core)%n",
                 found == null ? "NOT cracked" : "CRACKED ('" + found + "')", tries, secs, rate);
         System.out.printf("      at that speed a 14,344,391-word list (rockyou.txt) takes %.0f days per hash on 1 core%n", 14344391 / rate / 86400);
         String strong = PasswordUtil.hash("NewPass03!");
